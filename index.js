@@ -23,7 +23,7 @@ const newCard = ({id,
                 <span class="badge bg-primary">${taskType}</span>
                 </div>
                 <div class="card-footer text-muted">
-                    <button type="button" class="btn btn-outline-primary float-end"">Open Task</button>
+                    <button type="button" id="${id}" class="btn btn-outline-primary float-end"">Open Task</button>
                 </div>
             </div>
             </div>`; 
@@ -117,12 +117,60 @@ const editCard = (event) =>
     let Tasktitle = parentElement.childNodes[5].childNodes[1];
     let Taskdescription = parentElement.childNodes[5].childNodes[3];
     let Tasktype = parentElement.childNodes[5].childNodes[5];
-    let submitButton = parentElement.childNodes[7].childnodes[1];
+    let submitButton = parentElement.childNodes[7].childNodes[1];
     //setAttribute
+
+    //console.log(parentElement.childNodes[7].childNodes);
 
     Tasktitle.setAttribute("contenteditable", "true");
     Taskdescription.setAttribute("contenteditable", "true");
     Tasktype.setAttribute("contenteditable", "true");
-
+    submitButton.setAttribute(
+        "onclick", 
+        "saveEditChanges.apply(this, arguments)"
+        );
     submitButton.innerHTML = "Save Changes";
+}
+
+const saveEditChanges = (event) =>
+{
+    event=window.event;
+    const TargetID = event.target.id;
+    const tagname = event.target.tagName;
+
+    let parentElement;
+
+    if(tagname === "BUTTON")
+    {
+        parentElement = event.target.parentNode.parentNode;
+    }
+
+    else parentElement = event.target.parentNode.parentNode.parentNode;
+
+    let Tasktitle = parentElement.childNodes[5].childNodes[1];
+    let Taskdescription = parentElement.childNodes[5].childNodes[3];
+    let Tasktype = parentElement.childNodes[5].childNodes[5];
+    let submitButton = parentElement.childNodes[7].childNodes[1];
+
+    const updatedData =
+    {
+        Tasktitle: Tasktitle.innerHTML,
+        Tasktype: Tasktype.innerHTML,
+        Taskdescription: Taskdescription.innerHTML,
+    };
+
+    globalStore=globalStore.map((task) => {
+        if(task.id === TargetID){
+            return {
+                id: task.id,
+                imageURL: task.imageURL,
+                taskTitle: updatedData.Tasktitle,
+                taskType: updatedData.Tasktype,
+                taskDescription: updatedData.Taskdescription,
+            };
+        }
+
+        return task;
+    });
+    updateLocalStorage();
 }
